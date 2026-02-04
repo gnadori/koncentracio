@@ -10,13 +10,12 @@
             --success: #2ecc71;
             --error: #e74c3c;
             --bg: #f0f4f8;
-            --card-bg: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.98); /* Szinte teljesen fehér, hogy olvasható legyen a minta felett */
             --text: #2c3e50;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
             color: var(--text);
             display: flex;
             justify-content: center;
@@ -24,6 +23,13 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            
+            /* HÁTTÉRKÉP BEÁLLÍTÁSA (03.jpg) */
+            background-color: #f4f4f4; /* Alapszín, ha a kép nem töltődne be */
+            background-image: url('03.jpg');
+            background-repeat: repeat; /* Ez csinálja a csempézést (tile) */
+            background-size: 500px; /* A minta mérete. Állítsd át, ha nagyobbat/kisebbet szeretnél */
+            background-position: top left;
         }
 
         .container {
@@ -32,8 +38,9 @@
             max-width: 650px;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); /* Erősebb árnyék a minta miatt */
             position: relative;
+            backdrop-filter: blur(3px);
         }
 
         h1 {
@@ -54,11 +61,11 @@
             font-weight: bold;
             margin-bottom: 5px;
             font-size: 0.9em;
-            color: #555;
+            color: #444;
         }
 
         .progress-bar-bg {
-            background-color: #e0e0e0;
+            background-color: #d1d1d1;
             height: 10px;
             border-radius: 5px;
             overflow: hidden;
@@ -73,7 +80,7 @@
 
         /* Problem Section */
         .problem-box {
-            background-color: #f1f8ff;
+            background-color: rgba(241, 248, 255, 0.9);
             padding: 25px;
             border-left: 6px solid var(--primary);
             border-radius: 8px;
@@ -88,16 +95,16 @@
             align-items: center;
             margin-bottom: 25px;
             flex-wrap: wrap;
-            background: #fafafa;
+            background: rgba(250, 250, 250, 0.95);
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #eee;
+            border: 1px solid #ccc;
         }
 
         input[type="number"] {
             padding: 12px;
             font-size: 1.2em;
-            border: 2px solid #ddd;
+            border: 2px solid #aaa;
             border-radius: 6px;
             width: 140px;
             text-align: center;
@@ -175,8 +182,8 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(3px);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
             display: none;
             justify-content: center;
             align-items: center;
