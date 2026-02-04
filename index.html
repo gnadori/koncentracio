@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konyhai kémia - Koncentráció gyakorló</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 650px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 25px;
+        }
+        
+        .level-badge {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .progress-bar-bg {
+            background-color: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary);
+            width: 14%; /* 1/7 */
+            transition: width 0.3s ease;
+        }
+
+        /* Problem Section */
+        .problem-box {
+            background-color: #f1f8ff;
+            padding: 25px;
+            border-left: 6px solid var(--primary);
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 1.15em;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        input[type="number"] {
+            padding: 12px;
+            font-size: 1.2em;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            width: 140px;
+            text-align: center;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .unit {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
+            font-size: 1.05em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:active { transform: translateY(2px); }
+
+        .btn-check { background-color: var(--primary); }
+        .btn-check:hover { background-color: #357abd; }
+
+        .btn-next { background-color: var(--success); display: none; }
+        .btn-next:hover { background-color: #27ae60; }
+
+        .btn-retry { background-color: var(--error); display: none; }
+        .btn-retry:hover { background-color: #c0392b; }
+
+        /* Feedback Area */
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .explanation {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.95em;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal h2 { color: var(--success); margin-top: 0; }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover { background-color: #7f8c8d; }
+
+        /* Help toggle */
+        .help-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        .help-toggle {
+            font-size: 0.9em;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--primary);
+        }
+        .formula-hint {
+            display: none;
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ffeeba;
+            font-family: monospace;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Konyhai kémia</h1>
+        
+        <div class="progress-container">
+            <div class="level-badge">
+                <span id="level-display">1. szint: Koncentráció számítása</span>
+                <span id="streak-display">Széria: 0/2</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="help-container">
+            <span class="help-toggle" onclick="toggleHint()">Súgó: képlet megjelenítése</span>
+        </div>
+        <div class="formula-hint" id="formula-hint"></div>
+
+        <div class="problem-box" id="problem-text">
+            Betöltés...
+        </div>
+
+        <div class="input-group">
+            <label for="user-answer">Válasz:</label>
+            <input type="number" id="user-answer" step="0.01" placeholder="?">
+            <span class="unit" id="unit-label">%</span>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-check" onclick="checkAnswer()">Ellenőrzés</button>
+            <button class="btn btn-next" onclick="nextTask(false)">Következő feladat</button>
+            <button class="btn btn-retry" onclick="nextTask(false)">Újrapróbálom</button>
+        </div>
+
+        <div class="feedback" id="feedback-area"></div>
+    </div>
+
+    <div class="modal-overlay" id="level-modal">
+        <div class="modal">
+            <h2>Szintlépés!</h2>
+            <p>Sikeresen megoldottál két feladatot egymás után.</p>
+            <p>Szeretnél továbbmenni a nehezebb feladatokra?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal(false)">Még gyakorlok</button>
+                <button class="btn btn-check" onclick="closeModal(true)">Gyerünk!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- ADATBÁZIS: Kizárólag konyhai szövegek ---
+        const scenarios = {
+            1: [ // m/V% (Koncentráció számítás) - Bemenet: m (g), V (ml)
+                "A vasárnapi húsleveshez <b>${V} ml</b> vizet tettél fel főni, és beleszórtál <b>${m} g</b> sót. Hány tömeg/térfogat százalékos a leves sótartalma?",
+                "Egy pohárba <b>${V} ml</b> langyos vizet töltöttél, és feloldottál benne <b>${m} g</b> kristálycukrot a limonádéhoz. Mennyi az oldat koncentrációja?",
+                "Torokfájásra sós vizet készítesz gargarizálni. <b>${V} ml</b> vízbe teszel <b>${m} g</b> sót. Hány százalékos az oldat?",
+                "A főzelék habarásához <b>${V} ml</b> vízben elkevertél <b>${m} g</b> keményítőt. Hány százalékos a keverék?",
+                "Kakaót készítesz: <b>${V} ml</b> tejbe belekevertél <b>${m} g</b> cukrozott kakaóport. Hány százalékos a kakaóital?",
+                "Befőzésnél a tartósító felöntőléhez <b>${V} ml</b> vizet és <b>${m} g</b> citromsavat használtál. Mennyi az oldat koncentrációja?",
+                "A pácoláshoz <b>${V} ml</b> olajba belekevertél <b>${m} g</b> fűszersót. Hány százalékos a pác sótartalma?",
+                "Instant kávét készítesz: <b>${V} ml</b> forró vízhez adsz <b>${m} g</b> kávéport. Milyen tömény a kávéd?"
+            ],
+            2: [ // V_oldat számítás (c% és m alapján) - Bemenet: c (%), m (g)
+                "A recept <b>${c}%-os</b> cukorszirupot ír elő a piskóta locsolásához. Neked <b>${m} g</b> cukrod maradt otthon. Hány ml szirupot tudsz készíteni, ha az összeset felhasználod?",
+                "Uborka eltevéséhez <b>${c}%-os</b> sós felöntőlére van szükség. <b>${m} g</b> sót mértél ki. Mennyi felöntőlé készíthető ebből?",
+                "Egy speciális mártáshoz <b>${c}%-os</b> oldatot kell készítened citromsavból. A dobozban <b>${m} g</b> citromsav van. Hány ml oldatod lesz?",
+                "A gyógyteát <b>${c}%-osra</b> kell készíteni (kivonatra nézve). A tasakban <b>${m} g</b> por van. Mekkora térfogatú teát kell készíteni belőle?",
+                "Zselatinból <b>${c}%-os</b> kocsonyát szeretnél. Van <b>${m} g</b> zselatinod. Hány ml alapléhez elegendő ez?",
+                "A sütemény bevonásához <b>${c}%-os</b> csokoládémázat készítesz porból. <b>${m} g</b> kakaóporod van. Mennyi mázat tudsz keverni?",
+                "Fehérje turmixot készítesz. A porból <b>${m} grammot</b> teszel a shakerbe, és azt akarod, hogy <b>${c}%-os</b> legyen az ital fehérjetartalma. Hány milliliteres lesz az ital?",
+                "A házi tartósításhoz <b>${c}%-os</b> nátrium-benzoát oldat kell. Egy zacskóban <b>${m} g</b> tartósítószer van. Mekkora térfogatú oldatot készíthetsz?"
+            ],
+            3: [ // m_oldott számítás (c% és V alapján) - Bemenet: c (%), V (ml)
+                "Megiszol egy doboz (<b>${V} ml</b>) üdítőt, aminek a cukortartalma <b>${c}%</b>. Hány gramm cukrot vittél be a szervezetedbe?",
+                "Egy tányér leves <b>${V} ml</b>, és a sókoncentrációja <b>${c}%</b>. Hány gramm sót eszel meg vele?",
+                "A sörösüveg <b>${V} ml</b> sört tartalmaz, melynek alkoholtartalma (tömegben számolva most) <b>${c}%</b>. Hány gramm tiszta alkohol van benne?",
+                "A <b>${c}%-os</b> ételecetből <b>${V} ml</b>-t öntesz az ételbe. Hány gramm tiszta ecetsav került az ételbe?",
+                "Egy <b>${V} ml</b>-es energiaital koffeintartalma (egyéb anyagokkal együtt) <b>${c}%</b>-nak tekinthető. Hány gramm oldott anyag van benne?",
+                "A <b>${V} ml</b>-es tejszín zsírtartalma <b>${c}%</b>. Hány gramm tiszta tejzsírt tartalmaz?",
+                "A <b>${V} ml</b>-es zsíros tej zsírtartalma <b>${c}%</b>. Hány gramm zsír van ebben a mennyiségben?",
+                "A baracklekváros üveg <b>${V} ml</b> űrtartalmú, a lekvár cukortartalma <b>${c}%</b>. Hány gramm cukor van az üvegben?"
+            ],
+            4: [ // V/V% (Térfogatszázalék, összeadódó) - Bemenet: V_oldott (ml), V_oldószer (ml)
+                "Egy pohárba töltöttél <b>${v1} ml</b> málnaszörpöt, és ráöntöttél <b>${v2} ml</b> szódavizet. Hány térfogatszázalékos lett az italod (szörpre nézve)?",
+                "A koktélhoz <b>${v1} ml</b> fehér rumot kevertek <b>${v2} ml</b> kólához. Hány térfogatszázalékos a koktél alkoholtartalma (ha a rumot 100%-nak vesszük a példában)?",
+                "Fröccsöt készítesz: <b>${v1} ml</b> bort öntesz <b>${v2} ml</b> szódához. Mennyi a bor aránya térfogatszázalékban?",
+                "A salátaöntethez <b>${v1} ml</b> olívaolajat és <b>${v2} ml</b> ecetet kevertél össze. Mennyi az olaj térfogatszázaléka?",
+                "A tejeskávéban <b>${v1} ml</b> erős feketekávé és <b>${v2} ml</b> tej van. Hány százalék kávé van a csészében?",
+                "A limonádé alaphoz <b>${v1} ml</b> friss citromlevet öntöttél <b>${v2} ml</b> cukorsziruphoz. Milyen arányú (V/V%) a citromlé a keverékben?",
+                "A bodzaszörp hígításakor <b>${v1} ml</b> szörpöt öntöttél a kancsóba, majd <b>${v2} ml</b> vízzel hígítottad. Hány százalékos az ital?",
+                "Turmix készítésekor <b>${v1} ml</b> sűrű joghurtot keversz <b>${v2} ml</b> tejhez. Hány százalék joghurt van az italban?"
+            ],
+            5: [ // Hígítási arány (cél V/V% -> V_oldat) - Bemenet: V_oldott (ml), c_cél (%)
+                "Van <b>${v1} ml</b> tömény (100%-osnak tekintett) citromleved. Mekkora térfogatra kell felöntened vízzel, ha <b>${c}%-os</b> limonádét szeretnél?",
+                "Rendelkezésedre áll <b>${v1} ml</b> 20%-os ecet (tekintsük most ezt az oldott anyagnak). Mekkora térfogatú salátalevet készíthetsz, ha <b>${c}%-osra</b> akarod hígítani?",
+                "Van <b>${v1} ml</b> sűrített paradicsomod. A recepthez <b>${c}%-os</b> paradicsomlé szükséges. Hány ml levet készíthetsz belőle?",
+                "A befőzéshez <b>${v1} ml</b> ecetesszenciát használsz. A felöntőléhez <b>${c}%-os</b> ecetes vízre van szükség. Mekkora lesz a kész oldat térfogata?",
+                "A mélyhűtőben találtál <b>${v1} ml</b> sűrített narancslevet. Ha <b>${c}%-os</b> (iható) narancslét akarsz belőle csinálni, mekkora térfogatúra kell hígítanod?",
+                "Van <b>${v1} ml</b> nagyon erős chiliszószod. A mártáshoz <b>${c}%-os</b> erősségűre kell hígítani paradicsomlével. Mennyi mártásod lesz a végén?",
+                "Kávészirupot főztél (<b>${v1} ml</b>). A jegeskávédhoz <b>${c}%-os</b> hígításban szeretnéd használni tejjel felöntve. Mekkora lesz az ital térfogata?",
+                "<b>${v1} ml</b> eszpresszó kávéból hosszú kávét (Americano) készítesz. Ha azt akarod, hogy a kávé koncentrációja <b>${c}%-ra</b> csökkenjen, mekkora lesz az ital térfogata?"
+            ],
+            6: [ // Hígítás keverési egyenlettel (c1*V1 = c2*V2) -> V2
+                "A húslevesed túl sós lett: <b>${V1} ml</b> térfogatú és <b>${c1}%-os</b>. Felhígítod vízzel, hogy csak <b>${c2}%-os</b> (kellemes) legyen. Mekkora lesz a leves új térfogata?",
+                "Van <b>${V1} ml</b>, <b>${c1}%-os</b> eceted, de a recepthez gyengébb, <b>${c2}%-os</b> ecet kell. Mekkora térfogatúra kell hígítanod vízzel?",
+                "A palacsintatészta túl sűrű lett (<b>${c1}%</b> szárazanyag, <b>${V1} ml</b>). Hígítod tejjel, hogy <b>${c2}%-os</b> legyen. Mennyi lesz a hígított tészta térfogata?",
+                "Készítettél <b>${V1} ml</b> cukorszirupot, ami <b>${c1}%-os</b>. A koktélhoz viszont hígabb, <b>${c2}%-os</b> szirup kell. Mekkora térfogatúra hígítod?",
+                "A paradicsomleves <b>${V1} ml</b> és <b>${c1}%</b> sűrűségű. Hígítod, hogy hígabb, <b>${c2}%-os</b> legyen. Mekkora lesz a végső térfogat?",
+                "Egy csiliszósz <b>${V1} ml</b> és <b>${c1}%-os</b> erősségű. A vendégeknek csak <b>${c2}%-osra</b> hígított szószt mersz adni. Mennyi szósz lesz belőle?",
+                "A pálinkafőzésnél <b>${V1} ml</b>, <b>${c1}%-os</b> alszeszt nyertél. Ezt vízzel hígítod, hogy <b>${c2}%-os</b> fogyasztható pálinka legyen. Mekkora lesz a mennyiség?",
+                "A kávéd túl erős lett: <b>${V1} ml</b>, <b>${c1}%</b> koffein/szárazanyag. Felöntöd forró vízzel, hogy csak <b>${c2}%-os</b> legyen. Mekkora térfogatú kávét iszol?"
+            ],
+            7: [ // Keverés (m1+m2)/(V1+V2)
+                "Összeöntesz két maradék narancslevet. Az egyik <b>${V1} ml</b> és <b>${c1}%-os</b>, a másik <b>${V2} ml</b> és <b>${c2}%-os</b> gyümölcstartalmú. Hány százalékos lesz a keverék?",
+                "Kétféle tejet keversz össze a tejeskávéhoz: <b>${V1} ml ${c1}%-os</b> (zsíros) tejet és <b>${V2} ml ${c2}%-os</b> (sovány) tejet. Mennyi lesz a keverék zsírtartalma?",
+                "A befőzésnél összekeversz két cukoroldatot. 'A' oldat: <b>${V1} ml, ${c1}%</b>. 'B' oldat: <b>${V2} ml, ${c2}%</b>. Hány százalékos az új szirup?",
+                "Összeöntesz <b>${V1} ml ${c1}%-os</b> ecetet és <b>${V2} ml ${c2}%-os</b> ecetet. Milyen töménységű lesz az elegy?",
+                "A krémleveshez két adagot öntesz össze: <b>${V1} ml ${c1}%-osat</b> (sűrű) és <b>${V2} ml ${c2}%-osat</b> (hígabb). Mennyi az új koncentráció?",
+                "Kétféle likőrt keversz a koktélba. Az egyik <b>${V1} ml</b> és <b>${c1}%</b> alkohol, a másik <b>${V2} ml</b> és <b>${c2}%</b> alkohol. Hány százalékos a keverék alkoholtartalma?",
+                "Kétféle zsírtartalmú tejszínt keversz össze a habhoz: <b>${V1} ml, ${c1}%</b> és <b>${V2} ml, ${c2}%</b>. Mennyi lesz az új zsírtartalom?",
+                "Összekeversz kétféle limonádét: <b>${V1} ml ${c1}%-osat</b> és <b>${V2} ml ${c2}%-osat</b>. Hány százalékos lesz a keverék cukortartalma?"
+            ]
+        };
+
+        // --- Állapotváltozók ---
+        let state = {
+            level: 1,
+            streak: 0,
+            currentSolution: 0,
+            currentUnit: "%",
+            currentFormula: "",
+            solutionSteps: ""
+        };
+
+        const maxLevels = 7;
+        
+        // --- Segédfüggvények ---
+        const rnd = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const round = (num) => Math.round(num * 100) / 100; // 2 tizedesjegy
+
+        // Szövegbehelyettesítő
+        function formatText(level, vars) {
+            const templates = scenarios[level];
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            
+            let text = template;
+            for (const [key, value] of Object.entries(vars)) {
+                // Reguláris kifejezés a cseréhez, pl: ${V}
+                text = text.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value);
+            }
+            return text;
+        }
+
+        // --- Feladatgenerátor logika ---
+        function generateProblem() {
+            let pText = "";
+            let solution = 0;
+            let unit = "%";
+            let formula = "";
+            let steps = "";
+            let vars = {};
+
+            switch(state.level) {
+                case 1: // m/V%
+                    {
+                        vars.m = rnd(5, 60); 
+                        vars.V = rnd(2, 10) * 100; 
+                        solution = round((vars.m / vars.V) * 100);
+                        unit = "%";
+                        formula = "c% = (m_oldott / V_oldat) * 100";
+                        steps = `Képlet: (${vars.m} / ${vars.V}) * 100 = ${solution}`;
+                        pText = formatText(1, vars);
+                    }
+                    break;
+                case 2: // V_oldat
+                    {
+                        vars.c = rnd(10, 40);
+                        vars.m = rnd(10, 50) * 10;
+                        solution = round((vars.m / vars.c) * 100);
+                        unit = "ml";
+                        formula = "V_oldat = (m_oldott / c) * 100";
+                        steps = `Képlet: (${vars.m} / ${vars.c}) * 100 = ${solution}`;
+                        pText = formatText(2, vars);
+                    }
+                    break;
+                case 3: // m_oldott
+                    {
+                        vars.c = rnd(3, 15);
+                        vars.V = rnd(2, 6) * 100;
+                        solution = round((vars.c * vars.V) / 100);
+                        unit = "g";
+                        formula = "m_oldott = (c * V_oldat) / 100";
+                        steps = `Képlet: (${vars.c} * ${vars.V}) / 100 = ${solution}`;
+                        pText = formatText(3, vars);
+                    }
+                    break;
+                case 4: // V/V% (összeadódó)
+                    {
+                        vars.v1 = rnd(2, 10) * 10; // oldott
+                        vars.v2 = rnd(2, 8) * 100; // oldószer
+                        const v_total = vars.v1 + vars.v2;
+                        solution = round((vars.v1 / v_total) * 100);
+                        unit = "%";
+                        formula = "tf% = [V_oldott / (V_oldott + V_oldószer)] * 100";
+                        steps = `Össztérfogat = ${vars.v1} + ${vars.v2} = ${v_total} ml.<br>Százalék: (${vars.v1} / ${v_total}) * 100 = ${solution}`;
+                        pText = formatText(4, vars);
+                    }
+                    break;
+                case 5: // Hígítási cél V
+                    {
+                        vars.v1 = rnd(4, 20) * 10; // oldott
+                        vars.c = rnd(2, 12); // cél %
+                        solution = round((vars.v1 / vars.c) * 100);
+                        unit = "ml";
+                        formula = "V_cél = (V_oldott / c_kívánt) * 100";
+                        steps = `Képlet: (${vars.v1} / ${vars.c}) * 100 = ${solution}`;
+                        pText = formatText(5, vars);
+                    }
+                    break;
+                case 6: // Hígítás (c1V1 = c2V2)
+                    {
+                        vars.c1 = rnd(15, 40); 
+                        vars.V1 = rnd(1, 5) * 100; 
+                        vars.c2 = rnd(2, vars.c1 - 10); 
+                        solution = round((vars.c1 * vars.V1) / vars.c2);
+                        unit = "ml";
+                        formula = "c1 * V1 = c2 * V2  --->  V2 = (c1 * V1) / c2";
+                        steps = `Képlet: (${vars.c1} * ${vars.V1}) / ${vars.c2} = ${solution}`;
+                        pText = formatText(6, vars);
+                    }
+                    break;
+                case 7: // Keverés
+                    {
+                        vars.V1 = rnd(1, 4) * 100;
+                        vars.c1 = rnd(5, 20);
+                        const m1 = (vars.c1 * vars.V1) / 100;
+
+                        vars.V2 = rnd(1, 4) * 100;
+                        vars.c2 = rnd(25, 60);
+                        const m2 = (vars.c2 * vars.V2) / 100;
+
+                        const totalM = m1 + m2;
+                        const totalV = vars.V1 + vars.V2;
+                        
+                        solution = round((totalM / totalV) * 100);
+                        unit = "%";
+                        formula = "c_új = (m1 + m2) / (V1 + V2) * 100";
+                        steps = `1. oldat anyagtartalma: ${m1}g. 2. oldaté: ${m2}g. <br>Össz anyag: ${totalM}g. Össz térfogat: ${totalV}ml.<br>Eredmény: (${totalM} / ${totalV}) * 100 = ${solution}`;
+                        pText = formatText(7, vars);
+                    }
+                    break;
+            }
+
+            state.currentSolution = solution;
+            state.currentUnit = unit;
+            state.currentFormula = formula;
+            state.solutionSteps = steps;
+
+            // UI frissítése
+            document.getElementById('problem-text').innerHTML = pText;
+            document.getElementById('unit-label').innerText = unit;
+            document.getElementById('formula-hint').innerText = formula;
+            
+            // Resetek
+            document.getElementById('user-answer').value = '';
+            document.getElementById('feedback-area').style.display = 'none';
+            document.querySelector('.btn-check').style.display = 'inline-block';
+            document.querySelector('.btn-next').style.display = 'none';
+            document.querySelector('.btn-retry').style.display = 'none';
+            document.getElementById('user-answer').disabled = false;
+        }
+
+        // --- Felhasználói interakciók ---
+
+        function checkAnswer() {
+            const inputEl = document.getElementById('user-answer');
+            const inputVal = parseFloat(inputEl.value.replace(',', '.')); // Tizedesvessző kezelése
+            const feedbackEl = document.getElementById('feedback-area');
+
+            if (isNaN(inputVal)) {
+                alert("Kérlek írj be egy számot!");
+                return;
+            }
+
+            const diff = Math.abs(inputVal - state.currentSolution);
+            const isCorrect = diff <= 0.2; // Tolerancia
+
+            feedbackEl.style.display = 'block';
+            document.querySelector('.btn-check').style.display = 'none';
+            inputEl.disabled = true;
+
+            if (isCorrect) {
+                // HELYES
+                state.streak++;
+                feedbackEl.className = 'feedback success';
+                feedbackEl.innerHTML = `<strong>Helyes válasz!</strong> <br> ${state.solutionSteps}`;
+                updateProgress();
+
+                if (state.streak >= 2 && state.level < maxLevels) {
+                    setTimeout(() => {
+                        document.getElementById('level-modal').style.display = 'flex';
+                    }, 800);
+                } else {
+                    document.querySelector('.btn-next').style.display = 'inline-block';
+                }
+
+            } else {
+                // HELYTELEN
+                state.streak = 0;
+                updateProgress();
+                feedbackEl.className = 'feedback error';
+                feedbackEl.innerHTML = `<strong>Sajnos nem jó.</strong> <br>A helyes eredmény: <b>${state.currentSolution}</b>.<br><div class='explanation'>Magyarázat: ${state.solutionSteps}</div>`;
+                document.querySelector('.btn-retry').style.display = 'inline-block';
+            }
+        }
+
+        function nextTask(forceStay) {
+            generateProblem();
+        }
+
+        function closeModal(levelUp) {
+            document.getElementById('level-modal').style.display = 'none';
+            if (levelUp) {
+                state.level++;
+                state.streak = 0;
+            } else {
+                state.streak = 0; 
+            }
+            updateProgress();
+            generateProblem();
+        }
+
+        function updateProgress() {
+            const levelTitles = [
+                "1. szint: Vegyes százalék számítása",
+                "2. szint: Oldat térfogatának számítása",
+                "3. szint: Oldott anyag tömege",
+                "4. szint: Térfogatszázalék (keverés)",
+                "5. szint: Hígítási arány (cél V)",
+                "6. szint: Hígítás (keverési egyenlet)",
+                "7. szint: Két oldat összeöntése"
+            ];
+            
+            document.getElementById('level-display').innerText = levelTitles[state.level - 1];
+            
+            const percent = (state.level / maxLevels) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+
+            document.getElementById('streak-display').innerText = `Széria: ${state.streak}/2`;
+        }
+
+        function toggleHint() {
+            const hint = document.getElementById('formula-hint');
+            hint.style.display = hint.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Enter gomb kezelése
+        document.getElementById('user-answer').addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                // Ha a gomb látható, akkor kattintsunk rá virtuálisan
+                if (document.querySelector('.btn-check').style.display !== 'none') {
+                    checkAnswer();
+                } else if (document.querySelector('.btn-next').style.display !== 'none') {
+                    nextTask();
+                } else if (document.querySelector('.btn-retry').style.display !== 'none') {
+                    nextTask();
+                }
+            }
+        });
+
+        // --- Indítás ---
+        window.onload = function() {
+            updateProgress();
+            generateProblem();
+        };
+
+    </script>
+</body>
+</html>
